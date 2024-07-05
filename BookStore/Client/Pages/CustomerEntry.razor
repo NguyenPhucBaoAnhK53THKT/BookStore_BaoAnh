@@ -1,0 +1,53 @@
+﻿<div style="width: 100%; height: auto; padding: 20px; border: 3px solid #14784a;
+    border-radius: 16px; margin: 30px 0px;">
+    <h1 class="mb-2" style="margin: 25px 0px;">@Title </h1>
+        <EditForm Model="@Customer" OnInvalidSubmit="@ValidSubmit">
+                <DataAnnotationsValidator/>
+                <InputWatcher FieldChanged="@FieldChanged" @ref="@inputWatcher"/>
+                
+        <fieldset>
+        <div class="row mb-2">
+            <label for="name" class="col-2">Họ Tên:</label>
+            <InputText class="form-control col-6" id="name" @bind-Value="@Customer.Name" />
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => @Customer.Name)" />
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <label for="street" class="col-2">Địa chỉ:</label>
+            <InputText class="form-control col-6" name="street" id="street" @bind-Value="@Customer.Street" />
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => @Customer.Street)" />
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <label for="city" class="col-2">Thành Phố:</label>
+            <InputText class="form-control col-6" name="city" id="city" @bind-Value="@Customer.City" />
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => @Customer.City)" />
+            </div>
+        </div>
+
+        <div class="row mb-2">
+        <button @onclick="@ValidSubmit" class="@ButtonClass" disabled="@isInvalid">
+            @ButtonTitle
+        </button>
+        </div>
+        </fieldset>
+        </EditForm>
+</div>
+
+
+@code {
+
+}

@@ -1,0 +1,18 @@
+﻿@typeparam TItem
+
+@if(Header is not null){
+    @Header
+}
+
+<div class="row">
+    @foreach (TItem item in Items)
+    {
+    
+        @RowTemplate(item)
+    }
+</div>
+
+
+@if(Footer is not null){
+    @Footer
+}

@@ -1,0 +1,14 @@
+﻿<div class="col-4" style="margin-bottom: 10px">
+        <div class="card" style="width: 18rem; height: auto;">
+            <img src="@BookImage(Book.imagebook)" class="card-img-top" alt="@Book.imagebook">
+            <div class="card-body">
+              <h5 class="card-title">@($"{Book.Price:0.00}") VNĐ</h5>
+              <p class="card-text">@Book.Name</p>
+              <button class="@ButtonClass" @onclick="@(() => Selected.InvokeAsync(Book))">@ButtonTitle</button>
+            </div>
+        </div>
+      </div>
+
+@code {
+
+}

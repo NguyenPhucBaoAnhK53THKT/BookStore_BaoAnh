@@ -1,0 +1,316 @@
+﻿@page "/"
+@using BookStore.Shared
+@using System.ComponentModel.DataAnnotations;
+@inject IMenuService MenuService
+@inject IOrderService orderService
+
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Calendars
+
+
+
+@code {
+    public DateTime? SelectedDate { get; set; } = DateTime.Now;
+    public static string tensach { get; set; }
+
+    public State state { get; set; } = new State();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Menu menu = await MenuService.GetMenu();
+        foreach (Book Book in menu.Books)
+        {
+            state.Menu.addBook(Book);
+        }
+    }
+
+    private async Task PlaceOrder()
+    {
+        await orderService.PlaceOrder(state.Basket);
+        InfoBtnOnClick(@state.Basket.Customer.Name + " - Địa chỉ: "+@state.Basket.Customer.Street+" TP: "+@state.Basket.Customer.City);
+    }
+
+    //protected override void OnInitialized()
+    //{
+    //    state.Menu.addBook(new Book(1, "Pepperoni", 8.99M, Spiciness.Spicy));
+    //    state.Menu.addBook(new Book(2, "Margarita", 7.99M, Spiciness.None));
+    //    state.Menu.addBook(new Book(3, "Diabolo", 9.99M, Spiciness.Hot));
+    //}
+
+    //private void PlaceOrder()
+    //{
+    //    Console.WriteLine("Placing order");
+
+    //}
+
+    private string BookImage(ImageBook imageBook)
+    => $"images/{imageBook.ToString().ToLower()}.png";
+
+    private void AddToBasket(Book Book){
+        tensach = Book.Name;
+        state.Basket.Add(Book.Id);
+        SuccessBtnOnClick(tensach);
+    }
+    private void RemoveFromBasket(int pos)
+    {
+        state.Basket.RemoveAt(pos);
+        WarnBtnOnClick();
+    }
+    
+
+    //
+    
+
+}
+
+@*@foreach (var Book in state.Menu.Books)
+{
+    <div style="display: flex; justify-content: space-between;" class="row">
+        <div class="col">
+            @Book.Name
+        </div>
+        <div class="col text-right">
+            @($"{Book.Price:0.00}")
+        </div>
+        <div class="col">
+
+        </div>
+        <div class="col">
+            <img src="@SpicinessImage(Book.spiciness)" alt="@Book.spiciness">
+        </div>
+        <div class="col">
+            <button class="btn btn-success pl-4 pr-4" @onclick="@(() => AddToBasket(Book))"> Add</button>
+        </div>
+    </div>
+}*@
+@*@if (state.Basket.Orders.Any())
+{
+    <h1 style="margin-top: 10px">Đơn hàng của bạn</h1>
+    @foreach (var (Book, pos)  in state.Basket.Orders.Select((id, pos) => (state.Menu.GetBook(id), pos)))
+    {
+        <div style="margin-bottom: 10px; display: flex; justify-content: space-between" class="row-mb2">
+        <div class="col">
+            @Book.Name
+        </div>
+        <div class="col text-right">
+            @($"{Book.Price:0.00}")
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col">
+            <button class="btn btn-danger" @onclick="@(() => RemoveFromBasket(pos))">Remove</button>
+        </div>
+    </div>
+    }
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <hr/>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+    </div>
+
+    <div class="row">
+        <div class="col">Tổng Tiền: </div>
+        <div class="col text-right font-weight-bold"> @($"{state.TotalPrice:0.00}")</div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+    </div>
+
+    <h1 class="mt-2 mb-2" style="margin-top: 20px;">Nhập thông tin của bạn vào vùng dưới đây!</h1>
+
+
+
+    <EditForm Model="@state.Basket.Customer" OnInvalidSubmit="PlaceOrder">
+        <ValidationSummary/>
+        <DataAnnotationsValidator />
+        <fieldset>
+        <div class="row mb-2">
+            <label for="name" class="col-2">Name:</label>
+            <input type="text" class="col-6" id="name" @bind="state.Basket.Customer.Name">
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => state.Basket.Customer.Name)" />
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <label for="street" class="col-2">Street:</label>
+            <input type="text" class="col-6" name="street" id="street" @bind="state.Basket.Customer.Street">
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => state.Basket.Customer.Street)" />
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <label for="city" class="col-2">City:</label>
+            <input type="text" class="col-6" name="city" id="city" @bind="state.Basket.Customer.City">
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 offset-2">
+                <ValidationMessage For="@(() => state.Basket.Customer.City)" />
+            </div>
+        </div>
+
+        <button style="margin-bottom: 20px" @onclick="PlaceOrder" class="mx-auto w-25 btn btn-success" >Checkout</button>
+    </fieldset>
+    </EditForm>
+}*@
+@*@state.ToJoin()*@
+
+<Slider></Slider>
+
+@if(state.Menu.Books.Any()){
+    <BookList Title="Cửa Hàng Sách"
+            Items ="@state.Menu.Books"
+            ButtonTitle ="Thêm Vào Giỏ Hàng"
+            ButtonClass="btn btn-success"
+            Selected = "@AddToBasket">
+    </BookList>
+    @if (state.Basket.Orders.Any())
+    {
+        <ShoppingBasket Orders="@state.Basket.Orders"
+                    GetBookFromId="@state.Menu.GetBook"
+                    Selected="@RemoveFromBasket">
+
+        </ShoppingBasket>
+
+        <CustomerEntry Title="Thông Tin Giao Hàng"
+                        @bind-Customer="@state.Basket.Customer"
+                        ButtonTitle="Đặt Sách"
+                        ButtonClass = "mx-auto w-25 btn btn-success"
+                        ValidSubmit="PlaceOrder" >
+
+        </CustomerEntry>
+        <div class="control-section">
+            <div class="control-wrapper">
+                <SfCalendar TValue="DateTime?" @bind-Value="@SelectedDate"></SfCalendar>
+                <span class="example-label">Đã hẹn giao hàng vào: <b>@(SelectedDate?.ToString("M/d/yyyy"))</b></span>
+            </div>
+        </div>
+        <div style="width: 100%; height: auto; padding: 20px; border: 3px solid #14784a; border-radius: 16px; margin: 30px 0px;">
+            <h1 class="mb-2" style="margin: 25px 0px;">Mã Vận Hành Ứng Dụng</h1>
+            @state.ToJoin()
+        </div>
+
+
+    }
+}
+else
+{
+    <div class="mx-auto text-center mb-3 mt-3">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+
+
+
+
+
+
+<div class="col-lg-4 control-section">
+    <SfToast @ref="ToastObj" ID="toast_type">
+        <ToastPosition X="@ToastPosition"></ToastPosition>
+    </SfToast>
+
+</div>
+<style>
+    .control-wrapper {
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 20px 0px 10px;
+    }
+    .example-label {
+        font-size: 14px;
+        display: block;
+        margin: 0;
+        padding: 20px 0px 0px;
+
+    @@font-face {
+    font-family: 'Toast_icons';
+    src: url(data:application/x-font-ttf;charset=utf-8;base64,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) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    }
+    #toast_types button {
+    margin: 5px;
+    min-width: 160px;
+    max-width: 160px;
+    }
+    .toast-icons {
+    font-family: 'Toast_icons' !important;
+    speak: none;
+    font-size: 55px;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    }
+    #toast_type .e-toast-icon.e-icons {
+    height: auto;
+    font-size: 30px;
+    }
+    .bootstrap5 #toast_type .e-toast-icon.e-icons,
+    .bootstrap5-dark #toast_type .e-toast-icon.e-icons {
+    height: 25px;
+    }
+    .toast-icons.e-success::before {
+    content: "\e701";
+    }
+    .toast-icons.e-error::before {
+    content: "\e700";
+    }
+    .toast-icons.e-info::before {
+    content: "\e704";
+    }
+    .toast-icons.e-warning::before {
+    content: "\e703";
+    }
+    #toast_types {
+    text-align: center;
+    }
+</style>
+@code {
+    
+    SfToast ToastObj;
+    private string ToastPosition = "Right";
+    private List<ToastModel> Toast = new List<ToastModel>
+    {
+        new ToastModel{ Title = "Warning!", Content="There was a problem with your network connection.", CssClass="e-toast-warning", Icon="e-warning toast-icons" },
+        new ToastModel{ Title = "Thêm Sách Thành Công!", Content=tensach, CssClass="e-toast-success", Icon="e-success toast-icons" },
+        new ToastModel{ Title = "Error!", Content="A problem has been occurred while submitting your data.", CssClass="e-toast-danger", Icon="e-error toast-icons" },
+        new ToastModel{ Title = "Information!", Content="Please read the comments carefully.", CssClass="e-toast-info", Icon="e-info toast-icons" }
+    };
+    private async Task  InfoBtnOnClick(string KH) {
+        ToastModel Toast = new ToastModel { Title = "Đặt hàng thành công!", Content = KH,  CssClass="e-toast-info", Icon="e-info toast-icons" };
+        await this.ToastObj.Show(Toast);
+    }
+    private async Task  WarnBtnOnClick() {
+        ToastModel Toast = new ToastModel { Title = "Xóa Sách Khỏi Giỏ Hàng", Content = "Đã xóa thành công!", CssClass = "e-toast-warning", Icon = "e-warning toast-icons" };
+        await this.ToastObj.Show(Toast);
+    }
+    public async Task  SuccessBtnOnClick(string ten) {
+        ToastModel Toast = new ToastModel { Title = "Thêm Sách Thành Công!", Content = tensach, CssClass = "e-toast-success", Icon = "e-success toast-icons" };
+        await this.ToastObj.Show(Toast);
+    }
+    private async Task  ErrorBtnOnClick() {
+       await this.ToastObj.Show(Toast[2]);
+    }
+    private void HideBtnOnClick()
+    {
+        this.ToastObj.Hide("All");
+    }
+}
